@@ -7,6 +7,7 @@ import 'package:blog_app/helpers/image_helper.dart';
 import 'package:blog_app/pages/login_page.dart';
 import 'package:blog_app/widgets/common/button_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:get/route_manager.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class IntroPage extends StatefulWidget {
@@ -58,58 +59,59 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          PageView(
-            controller: _pageController,
-            children: listSliderData.map((sliderItem) {
-              return _buildSliderItem(sliderItem);
-            }).toList(),
-          ),
-          Positioned(
-            left: kDefaultPadding,
-            right: kDefaultPadding,
-            bottom: kDefaultPadding * 2,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  flex: 6,
-                  child: SmoothPageIndicator(
-                    controller: _pageController,
-                    count: listSliderData.length,
-                    effect: const ExpandingDotsEffect(
-                      dotHeight: kMinPadding,
-                      dotWidth: kMinPadding,
-                      activeDotColor: Colors.orange,
+    return SingleChildScrollView(
+      child: Scaffold(
+        body: Stack(
+          children: [
+            PageView(
+              controller: _pageController,
+              children: listSliderData.map((sliderItem) {
+                return _buildSliderItem(sliderItem);
+              }).toList(),
+            ),
+            Positioned(
+              left: kDefaultPadding,
+              right: kDefaultPadding,
+              bottom: kDefaultPadding * 2,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    flex: 6,
+                    child: SmoothPageIndicator(
+                      controller: _pageController,
+                      count: listSliderData.length,
+                      effect: const ExpandingDotsEffect(
+                        dotHeight: kMinPadding,
+                        dotWidth: kMinPadding,
+                        activeDotColor: Colors.orange,
+                      ),
                     ),
                   ),
-                ),
-                StreamBuilder<int>(
-                  initialData: 0,
-                  stream: _pageStreamController.stream,
-                  builder: (context, snapshot) {
-                    return Expanded(
-                        flex: 4,
-                        child: ButtonWidget(
-                            title: snapshot.data != 2 ? 'Next' : 'Get Started',
-                            onPressed: () {
-                              if (_pageController.page != 2) {
-                                _pageController.nextPage(
-                                    duration: const Duration(milliseconds: 200),
-                                    curve: Curves.easeIn);
-                              } else {
-                                Navigator.of(context)
-                                    .pushNamed(LoginPage.routeName);
-                              }
-                            }));
-                  },
-                )
-              ],
-            ),
-          )
-        ],
+                  StreamBuilder<int>(
+                    initialData: 0,
+                    stream: _pageStreamController.stream,
+                    builder: (context, snapshot) {
+                      return Expanded(
+                          flex: 4,
+                          child: ButtonWidget(
+                              title: snapshot.data != 2 ? 'Next' : 'Get Started',
+                              onPressed: () {
+                                if (_pageController.page != 2) {
+                                  _pageController.nextPage(
+                                      duration: const Duration(milliseconds: 200),
+                                      curve: Curves.easeIn);
+                                } else {
+                                  Get.to(() => LoginPage(), transition: Transition.zoom, duration: Duration(milliseconds: 500));
+                                }
+                              }));
+                    },
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

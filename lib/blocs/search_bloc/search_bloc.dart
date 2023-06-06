@@ -8,8 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SearchBloc extends Bloc<SearchEvent, SearchBlogState> {
   final SearchRepository _searchRepository;
   SearchBloc({required SearchRepository searchRepository})
-      : assert(searchRepository != null),
-        _searchRepository = searchRepository,
+      :_searchRepository = searchRepository,
         super(SearchBlogInitial()) {
     on<SearchEvent>(_getSearchBlogs);
     

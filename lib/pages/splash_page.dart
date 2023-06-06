@@ -1,6 +1,5 @@
 import 'package:blog_app/helpers/asset_helper.dart';
 import 'package:blog_app/helpers/image_helper.dart';
-import 'package:blog_app/models/auth_model.dart';
 import 'package:blog_app/pages/intro_page.dart';
 import 'package:blog_app/pages/login_page.dart';
 import 'package:blog_app/pages/main_app_page.dart';
@@ -48,7 +47,6 @@ class _SplashPageState extends State<SplashPage> {
                 ),
             transition: Transition.zoom,
             duration: Duration(seconds: 1));
-        // Navigator.of(context).pushNamed(LoginPage.routeName);
       } else {
         Get.to(() => LoginPage(),
           transition: Transition.zoom, duration: Duration(seconds: 1));

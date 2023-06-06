@@ -6,8 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class BlogUserBloc extends Bloc<BlogUserEvent, BlogUserState> {
   final BlogUserReposotory _blogUserReposotory;
   BlogUserBloc({required BlogUserReposotory blogUserReposotory})
-      : assert(blogUserReposotory != null),
-        _blogUserReposotory = blogUserReposotory,
+      : _blogUserReposotory = blogUserReposotory,
         super(BlogUserInitial()) {
     on<GetBlogsUser>(_getBlogsUser);
   }

@@ -7,8 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
   final CategoryRepository _categoryRepository;
   CategoryBloc({required CategoryRepository categoryRepository})
-      : assert(categoryRepository != null),
-        _categoryRepository = categoryRepository,
+      : _categoryRepository = categoryRepository,
         super(CategoryInitial()) {
     on<CategoryFetched>(_getCategories);
     on<DeleteCategory>(_deleteCategory);

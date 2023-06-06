@@ -1,4 +1,3 @@
-import 'package:blog_app/models/blog_model.dart';
 import 'package:blog_app/models/home_blog_model.dart';
 import 'package:equatable/equatable.dart';
 

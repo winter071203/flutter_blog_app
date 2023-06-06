@@ -6,8 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class BlogBloc extends Bloc<BlogEvent, BlogState> {
   final HomeRepository _homeRepository;
   BlogBloc({required HomeRepository homeRepository})
-      : assert(homeRepository != null),
-        _homeRepository = homeRepository,
+      :_homeRepository = homeRepository,
         super(BlogInitial()) {
     on<BlogEvent>(_getHomeBlogs);
   }

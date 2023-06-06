@@ -4,11 +4,13 @@ import 'package:blog_app/blocs/blog_user_bloc/blog_user_state.dart';
 import 'package:blog_app/constants/color_constants.dart';
 import 'package:blog_app/constants/dimension_constants.dart';
 import 'package:blog_app/models/auth_model.dart';
+import 'package:blog_app/pages/edit_profile_page.dart';
 import 'package:blog_app/pages/setting_page.dart';
 import 'package:blog_app/repositories/blog_user_repository,.dart';
 import 'package:blog_app/widgets/common/item_blog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
 
@@ -24,7 +26,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final user = widget.authModel.user!;
-    final BlogUserReposotory blogUserReposotory = BlogUserReposotory();
     return BlocProvider(
       create: (context) =>
           BlogUserBloc(blogUserReposotory: BlogUserReposotory())
@@ -89,6 +90,12 @@ class _ProfilePageState extends State<ProfilePage> {
                           )
                         ],
                       ),
+                                            SizedBox(
+                        width: kDefaultPadding,
+                      ),
+                      IconButton(onPressed: () {
+                        Get.to(() => EditProfileUserPage(auth: widget.authModel));
+                      }, icon: Icon(FontAwesomeIcons.pen, size: 20, color: Colors.white,))
                     ],
                   ),]
                 ),

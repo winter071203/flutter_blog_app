@@ -2,6 +2,7 @@ import 'package:blog_app/constants/color_constants.dart';
 import 'package:blog_app/constants/dimension_constants.dart';
 import 'package:blog_app/models/auth_model.dart';
 import 'package:blog_app/models/user_model.dart';
+import 'package:blog_app/pages/add_blog_page.dart';
 import 'package:blog_app/pages/category_page.dart';
 import 'package:blog_app/pages/home_page.dart';
 import 'package:blog_app/pages/profile_page.dart';
@@ -57,6 +58,7 @@ class _MainAppPageState extends State<MainAppPage> {
         children: [
           KeepAlivePage(child: HomePage(user: widget.authModel.user as UserModel)),
           SearchPage(),
+          KeepAlivePage(child: AddBlogPage()),
           KeepAlivePage(child: CategoryPage()),
           KeepAlivePage(
             child: ProfilePage(
@@ -91,6 +93,13 @@ class _MainAppPageState extends State<MainAppPage> {
               size: kDefaultPadding,
             ),
             title: Text('Search'),
+          ),
+            SalomonBottomBarItem(
+            icon: Icon(
+              FontAwesomeIcons.add,
+              size: kDefaultPadding,
+            ),
+            title: Text('Add'),
           ),
           SalomonBottomBarItem(
             icon: Icon(

@@ -53,10 +53,8 @@ class _SearchPageState extends State<SearchPage> {
                       child: IconButton(
                         onPressed: () {
                           if(_searchController.text.length < 2) {
-
                           } else {
-                          BlocProvider.of<SearchBloc>(context)
-                              .add(SearchBlog(title: _searchController.text));
+                            context.read<SearchBloc>().add(SearchBlog(title: _searchController.text));
                           }
                         },
                         icon: Icon(
