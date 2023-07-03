@@ -3,6 +3,7 @@ import 'package:blog_app/constants/dimension_constants.dart';
 import 'package:blog_app/models/auth_model.dart';
 import 'package:blog_app/pages/change_password_page.dart';
 import 'package:blog_app/providers/theme_provider.dart';
+import 'package:blog_app/repositories/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/route_manager.dart';
@@ -30,19 +31,32 @@ class _SettingPageState extends State<SettingPage> {
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Logout"),
-          content: new Text("Are you sure you want to logout?"),
+          title: Text("Logout"),
+          content: Text("Are you sure you want to logout?"),
           actions: <Widget>[
             TextButton(
-              child: new Text("Cancel"),
+              child: Text("Cancel"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
               TextButton(
-              child: new Text("Logout"),
-              onPressed: () {
-                Navigator.of(context).pop();
+              child: Text("Logout"),
+              onPressed: () async{
+                try {
+                final AuthRepository _authRepository = AuthRepository();
+                final Future<SharedPreferences> _prefs =
+                    SharedPreferences.getInstance();
+                final SharedPreferences prefs = await _prefs;
+                final String token = prefs.getString('accessToken')!;
+                await _authRepository.logout(token);
+                prefs.remove('refreshToken');
+                prefs.remove('accessToken');
+                Get.offAllNamed('/');
+                } catch (e) {
+                  Navigator.of(context).pop();
+                  debugPrint('logout error: $e');
+                }
               },
             ),
           ],

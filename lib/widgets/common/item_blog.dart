@@ -5,6 +5,7 @@ import 'package:blog_app/helpers/image_helper.dart';
 import 'package:blog_app/models/blog_model.dart';
 import 'package:blog_app/pages/detail_post_page.dart';
 import 'package:blog_app/pages/other_profile_page.dart';
+import 'package:blog_app/utils/convert_date.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 
@@ -17,10 +18,10 @@ class ItemBlog extends StatelessWidget {
     final Size size = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () {
-        Get.to(() => DetailPostPage(blog: blog), transition: Transition.rightToLeftWithFade, duration: Duration(milliseconds: 200));
+        Get.to(() => DetailPostPage(blog: blog), transition: Transition.rightToLeft);
       },
       child: Container(
-        margin: EdgeInsets.only(bottom: kDefaultPadding),
+        margin: EdgeInsets.only(top: kDefaultPadding),
         height: size.height / 3.5,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -109,8 +110,5 @@ class ItemBlog extends StatelessWidget {
     );
   }
 
-    String convertDate(String date) {
-    return '${DateTime.parse(date).hour.toString()}:${DateTime.parse(date).minute.toString()} ${DateTime.parse(date).day.toString()}/${DateTime.parse(date).month.toString()}/${DateTime.parse(date).year.toString()}';
-  }
 
 }

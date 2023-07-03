@@ -5,20 +5,26 @@ import 'package:blog_app/constants/color_constants.dart';
 import 'package:blog_app/constants/dimension_constants.dart';
 import 'package:blog_app/models/comment_model.dart';
 import 'package:blog_app/repositories/comment_repository.dart';
+import 'package:blog_app/utils/convert_date.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_html/flutter_html.dart';
 
 class CommentsPage extends StatefulWidget {
   static const String routeName = '/comments_page';
   final String id;
-  const CommentsPage({super.key, required this.id});
+  final String blogUserId;
+  final String token;
+  const CommentsPage({super.key, required this.id,required this.blogUserId, required this.token});
 
   @override
   State<CommentsPage> createState() => _CommentsPageState();
 }
 
 class _CommentsPageState extends State<CommentsPage> {
+
+  final TextEditingController _commentController = TextEditingController();
+  
+
   void _showDialog(BuildContext context) {
     // user defined function void _showDialog(BuildContext context) {
     // flutter defined function
@@ -27,13 +33,12 @@ class _CommentsPageState extends State<CommentsPage> {
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Message"),
-          content: new Text("Hello World"),
           actions: <Widget>[
+            
             TextButton(
-              child: new Text("Close"),
+              child: new Text("Report"),
               onPressed: () {
-                Navigator.of(context).pop();
+                // Navigator.of(context).pop();
               },
             ),
           ],
@@ -63,12 +68,12 @@ class _CommentsPageState extends State<CommentsPage> {
                 children: [
                   Expanded(
                     child: ListView.builder(
-                    itemCount: commentState.comments.length,
+                    itemCount: commentState.comments?.length,
                     itemBuilder: (context, index) {
-                      return _buildCommentItem(commentState.comments[index]);
+                      return _buildCommentItem(commentState.comments![index]);
                     },
                   )),
-                  _buidlInputComment(),
+                  _buidlInputComment(context),
                 ],
               );
             }
@@ -81,9 +86,6 @@ class _CommentsPageState extends State<CommentsPage> {
     );
   }
 
-  String convertDate(String date) {
-    return '${DateTime.parse(date).hour.toString()}:${DateTime.parse(date).minute.toString()} ${DateTime.parse(date).day.toString()}/${DateTime.parse(date).month.toString()}/${DateTime.parse(date).year.toString()}';
-  }
 
   Widget _buildCommentItem(CommentModel comment) {
     return GestureDetector(
@@ -92,14 +94,15 @@ class _CommentsPageState extends State<CommentsPage> {
       },
       child: Container(
         alignment: Alignment.centerLeft,
-        color: Colors.white,
-        margin: EdgeInsets.only(bottom: kDefaultPadding),
+        color: Colors.transparent,
+        margin: EdgeInsets.only(top: kDefaultPadding),
         padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircleAvatar(
-              radius: 25,
+              radius: 20,
               backgroundImage: NetworkImage(comment.user!.avatar!),
             ),
             const SizedBox(
@@ -113,7 +116,10 @@ class _CommentsPageState extends State<CommentsPage> {
                     comment.user!.name!,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  Html(data: comment.content!),
+                  Text(
+                    comment.content!.replaceAll('<p>', '').replaceAll('</p>', ''),
+                    style: TextStyle(fontSize: 16),
+                  ),
                   Container(
                     alignment: Alignment.centerRight,
                     child: Text(
@@ -130,7 +136,7 @@ class _CommentsPageState extends State<CommentsPage> {
     );
   }
 
-  Widget _buidlInputComment() {
+  Widget _buidlInputComment(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(kDefaultPadding),
       decoration: BoxDecoration(
@@ -143,6 +149,7 @@ class _CommentsPageState extends State<CommentsPage> {
         children: [
           Expanded(
               child: TextFormField(
+                controller: _commentController,
             decoration: InputDecoration(
                 hintText: 'Add a comment...',
                 filled: true,
@@ -154,7 +161,10 @@ class _CommentsPageState extends State<CommentsPage> {
           const SizedBox(
             width: kItemPadding,
           ),
-          IconButton(onPressed: () {}, icon: Icon(Icons.send))
+          IconButton(onPressed: () {
+            context.read<CommentBloc>().add(CreateComment(blogId: widget.id, blogUserId: widget.blogUserId, content: '<p>${_commentController.text}</p>', token: widget.token));
+            _commentController.clear();
+          }, icon: Icon(Icons.send))
         ],
       ),
     );

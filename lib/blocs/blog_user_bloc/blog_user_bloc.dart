@@ -1,12 +1,12 @@
 import 'package:blog_app/blocs/blog_user_bloc/blog_user_event.dart';
 import 'package:blog_app/blocs/blog_user_bloc/blog_user_state.dart';
-import 'package:blog_app/repositories/blog_user_repository,.dart';
+import 'package:blog_app/repositories/blog_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BlogUserBloc extends Bloc<BlogUserEvent, BlogUserState> {
-  final BlogUserReposotory _blogUserReposotory;
-  BlogUserBloc({required BlogUserReposotory blogUserReposotory})
-      : _blogUserReposotory = blogUserReposotory,
+  final BlogRepository _blogRepository;
+  BlogUserBloc({required BlogRepository blogRepository})
+      : _blogRepository = blogRepository,
         super(BlogUserInitial()) {
     on<GetBlogsUser>(_getBlogsUser);
   }
@@ -14,7 +14,7 @@ class BlogUserBloc extends Bloc<BlogUserEvent, BlogUserState> {
   void _getBlogsUser(GetBlogsUser event, Emitter<BlogUserState> emit) async {
     emit(BlogUserLoading());
     try {
-      final res = await _blogUserReposotory.getBlogsUser(event.id);
+      final res = await _blogRepository.getBlogsUser(event.id);
       emit(BlogUserSuccess(blogsUser: res));
     } catch (e) {
       emit(BlogUserFailure());

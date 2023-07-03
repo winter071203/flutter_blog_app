@@ -32,7 +32,6 @@ class _KeepAlivePageState extends State<KeepAlivePage>
   }
 
   @override
-  // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
 }
 
@@ -54,12 +53,25 @@ class _MainAppPageState extends State<MainAppPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: PageView(
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         controller: _pageController,
-        children: [
+        children: widget.authModel.user?.role == 'admin' ?  [
           KeepAlivePage(child: HomePage(user: widget.authModel.user as UserModel)),
           SearchPage(),
-          KeepAlivePage(child: AddBlogPage()),
           KeepAlivePage(child: CategoryPage()),
+          KeepAlivePage(
+            child: ProfilePage(
+              authModel: widget.authModel,
+            ),
+          )
+        ]
+        :[
+          KeepAlivePage(child: HomePage(user: widget.authModel.user as UserModel)),
+          SearchPage(),
           KeepAlivePage(
             child: ProfilePage(
               authModel: widget.authModel,
@@ -68,6 +80,7 @@ class _MainAppPageState extends State<MainAppPage> {
         ],
       ),
       bottomNavigationBar: SalomonBottomBar(
+        
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -79,7 +92,7 @@ class _MainAppPageState extends State<MainAppPage> {
         unselectedItemColor: ColorPalette.primaryColor.withOpacity(0.5),
         margin: EdgeInsets.symmetric(
             horizontal: kMediumPadding, vertical: kDefaultPadding),
-        items: [
+        items: widget.authModel.user?.role == 'admin' ?  [
           SalomonBottomBarItem(
             icon: Icon(
               FontAwesomeIcons.house,
@@ -94,19 +107,36 @@ class _MainAppPageState extends State<MainAppPage> {
             ),
             title: Text('Search'),
           ),
-            SalomonBottomBarItem(
-            icon: Icon(
-              FontAwesomeIcons.add,
-              size: kDefaultPadding,
-            ),
-            title: Text('Add'),
-          ),
           SalomonBottomBarItem(
             icon: Icon(
               FontAwesomeIcons.bars,
               size: kDefaultPadding,
             ),
             title: Text('Category'),
+          ),
+          SalomonBottomBarItem(
+            icon: Icon(
+              FontAwesomeIcons.solidUser,
+              size: kDefaultPadding,
+            ),
+            title: Text('Profile'),
+          ),
+        ]
+        :
+        [
+          SalomonBottomBarItem(
+            icon: Icon(
+              FontAwesomeIcons.house,
+              size: kDefaultPadding,
+            ),
+            title: Text('Home'),
+          ),
+          SalomonBottomBarItem(
+            icon: Icon(
+              FontAwesomeIcons.searchengin,
+              size: kDefaultPadding,
+            ),
+            title: Text('Search'),
           ),
           SalomonBottomBarItem(
             icon: Icon(

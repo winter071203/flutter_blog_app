@@ -23,7 +23,6 @@ class Repository {
       ...headers,
       HttpHeaders.authorizationHeader: 'Bearer $token',
     });
-    print('tokenRes: ${tokenRes.body}');
     print('tokenRes: ${jsonDecode(tokenRes.body)}');
     return jsonDecode(tokenRes.body);
   }

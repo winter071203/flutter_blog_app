@@ -3,6 +3,8 @@ import 'package:blog_app/constants/color_constants.dart';
 import 'package:blog_app/constants/dimension_constants.dart';
 import 'package:blog_app/helpers/image_helper.dart';
 import 'package:blog_app/models/auth_model.dart';
+import 'package:blog_app/repositories/user_repository.dart';
+import 'package:blog_app/utils/image_upload.dart';
 import 'package:blog_app/widgets/common/button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,10 +23,26 @@ class EditProfileUserPage extends StatefulWidget {
 
 class _EditProfileUserPageState extends State<EditProfileUserPage> {
   File? image;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _accountController = TextEditingController();
+  final nameFocusNode = FocusNode();
+  @override
+  void initState() {
+    super.initState();
+    _nameController.text = widget.auth.user!.name!;
+    _accountController.text = widget.auth.user!.account!;
+  }
 
-  Future pickImage(ImageSource soure) async {
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _accountController.dispose();
+    super.dispose();
+  }
+
+  Future<void> pickImage(ImageSource source) async {
     try {
-      final image = await ImagePicker().pickImage(source: soure);
+      final image = await ImagePicker().pickImage(source: source);
       if (image == null) return;
       final imageTemporary = File(image.path);
       setState(() {
@@ -33,6 +51,25 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
     } on PlatformException catch (e) {
       print('pickImage error: $e');
     }
+  }
+
+  Future<dynamic> saveEditProfile(BuildContext context) async {
+    final UserRepository userRepository = UserRepository();
+    if (image == null) {
+      await userRepository.updateUser(
+        _nameController.text,
+        widget.auth.user!.avatar!,
+        widget.auth.accessToken!,
+      );
+    } else {
+      String photoUrl = await imageUpload(image);
+      await userRepository.updateUser(
+        _nameController.text,
+        photoUrl,
+        widget.auth.accessToken!,
+      );
+    }
+    Get.back();
   }
 
   void _showDialog(BuildContext context) {
@@ -50,9 +87,8 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
           actions: <Widget>[
             ElevatedButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(
-                    ColorPalette.primaryColor),
-                
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(ColorPalette.primaryColor),
               ),
               child: Row(
                 children: const [
@@ -66,7 +102,7 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
                 Navigator.of(context).pop();
               },
             ),
-              ElevatedButton(
+            ElevatedButton(
               child: Row(
                 children: const [
                   Icon(FontAwesomeIcons.image),
@@ -84,7 +120,6 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
       },
     );
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +140,7 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
             children: [
               Stack(children: [
                 Container(
-                  width: size.height/6,
+                  width: size.height / 6,
                   height: size.height / 6,
                   decoration: BoxDecoration(
                     border:
@@ -114,9 +149,11 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
                   ),
                   child: image != null
                       ? ImageHelper.loadImageFile(image!,
-                          borderRadius: BorderRadius.circular(500), fit: BoxFit.cover)
+                          borderRadius: BorderRadius.circular(500),
+                          fit: BoxFit.cover)
                       : ImageHelper.loadImageNetWork(widget.auth.user!.avatar!,
-                          borderRadius: BorderRadius.circular(500), fit: BoxFit.cover),
+                          borderRadius: BorderRadius.circular(500),
+                          fit: BoxFit.cover),
                 ),
                 Positioned(
                   right: 0,
@@ -126,7 +163,7 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
                       _showDialog(context);
                     },
                     child: Container(
-                      height:  45,
+                      height: 45,
                       width: 45,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
@@ -144,16 +181,17 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
               ]),
               const SizedBox(height: kMediumPadding),
               TextFormField(
-                initialValue: widget.auth.user!.name,
+                controller: _nameController,
                 decoration: InputDecoration(
                   labelText: 'Name',
                 ),
               ),
               const SizedBox(height: kDefaultPadding),
               TextFormField(
-                initialValue: widget.auth.user!.account,
+                enabled: false,
+                controller: _accountController,
                 decoration: InputDecoration(
-                  labelText: 'Name',
+                  labelText: 'Account',
                 ),
               ),
               const SizedBox(height: kDefaultPadding * 2),
@@ -168,7 +206,11 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
                           })),
                   const SizedBox(width: kDefaultPadding),
                   Expanded(
-                      child: ButtonWidget(title: 'Save', onPressed: () {})),
+                      child: ButtonWidget(
+                          title: 'Save',
+                          onPressed: () {
+                            saveEditProfile(context);
+                          })),
                 ],
               ),
             ],

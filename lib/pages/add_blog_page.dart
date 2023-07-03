@@ -17,7 +17,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 
 class AddBlogPage extends StatefulWidget {
   static const String routeName = '/add_blog_page';
@@ -28,6 +27,10 @@ class AddBlogPage extends StatefulWidget {
 }
 
 class _AddBlogPageState extends State<AddBlogPage> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  CategoryModel? _categoryModel;
+  dynamic content;
     File? image;
     Future pickImage(ImageSource soure) async {
     try {
@@ -99,9 +102,7 @@ class _AddBlogPageState extends State<AddBlogPage> {
       create: (context) => CategoryBloc(categoryRepository: _categoryRepository)..add(CategoryFetched()),
       child: Scaffold(
         appBar: AppBar( 
-          backgroundColor: ColorPalette.primaryColor,
           title: Text('Add Blog'),
-          automaticallyImplyLeading: false,
         ),
         body: Container(
           padding: EdgeInsets.symmetric(horizontal: kMediumPadding),
@@ -110,6 +111,7 @@ class _AddBlogPageState extends State<AddBlogPage> {
               children: [
                 Padding(padding: EdgeInsets.only(top: kDefaultPadding)),
                 TextFormField(
+                  controller: _titleController,
                   decoration: InputDecoration(
                     labelText: 'Title',
                     hintText: 'Add a title',
@@ -127,8 +129,6 @@ class _AddBlogPageState extends State<AddBlogPage> {
                     _showDialog(context);
                   },
                   child: Container(
-                    height: 200,
-                    width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(kMediumPadding),
@@ -146,6 +146,7 @@ class _AddBlogPageState extends State<AddBlogPage> {
                 // Description
                 TextFormField(
                   maxLines: 10,
+                  controller: _descriptionController,
                   decoration: InputDecoration(
                     labelText: 'Description',
                     hintText: 'Add a description',
@@ -165,7 +166,16 @@ class _AddBlogPageState extends State<AddBlogPage> {
                         child: CircularProgressIndicator(),
                       );
                     } else if(categoryState is CategorySuccess) {
-                      return _buildSelectCategory(categoryState.categories);
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Select Category', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          SizedBox(
+                            height: kDefaultPadding,
+                          ),
+                          _buildSelectCategory(categoryState.categories),
+                        ],
+                      );
                     } 
                     return Center(
                       child: Text('Error'));
@@ -209,9 +219,13 @@ class _AddBlogPageState extends State<AddBlogPage> {
           return Container(
             margin: EdgeInsets.only(right: kMediumPadding),
             child: ChoiceChip(
-              label: Text(listCategory[index].name as String),
+              label: Text(listCategory[index].name![0].toUpperCase() + listCategory[index].name!.substring(1)),
               selected: false,
-              onSelected: (value) {},
+              onSelected: (value) {
+                setState(() {
+                  _categoryModel = listCategory[index];
+                });
+              },
             ),
           );
         },

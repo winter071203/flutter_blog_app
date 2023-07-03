@@ -13,6 +13,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
       final SharedPreferences prefs = await _prefs;
       if (event is AuthEventLogout) {
+        prefs.remove('accessToken');
+        prefs.remove('refreshToken');
         emit(AuthFailure());
       } else if (event is AuthEventLogin) {
         emit(AuthLoading());
@@ -20,18 +22,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           final res =
               await _authRepository.login(event.account, event.password) ;
           prefs.setString('accessToken', res.accessToken);
-          emit(AuthSuccess(authModel: res));
-        } catch (e) {
-          emit(AuthFailure());
-        }
-      } else if (event is AuthEventRefreshToken) {
-        emit(AuthLoading());
-        try {
-          final res = await _authRepository.refreshToken(event.refreshToken);
-          prefs.setString('accessToken', res.accessToken);
+          prefs.setString('refreshToken', res.refreshToken);
           emit(AuthSuccess(authModel: res));
         } catch (e) {
           prefs.remove('accessToken');
+          prefs.remove('refreshToken');
           emit(AuthFailure());
         }
       }

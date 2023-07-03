@@ -1,6 +1,7 @@
 import 'package:blog_app/models/auth_model.dart';
 import 'package:blog_app/repositories/repository.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthRepository {
   final Repository repository = Repository();
@@ -25,6 +26,14 @@ class AuthRepository {
       return AuthModel.fromJson(response);
     } catch (e) {
       return debugPrint('refreshToken error: $e');
+    }
+  }
+
+  Future<dynamic> logout(String token) async {
+    try {
+    await repository.getApi('logout', token);
+    } catch (e) {
+      return debugPrint('logout error: $e');
     }
   }
 }

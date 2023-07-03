@@ -1,11 +1,25 @@
 import 'package:blog_app/constants/color_constants.dart';
 import 'package:blog_app/constants/dimension_constants.dart';
+import 'package:blog_app/helpers/show_snack_bar_helper.dart';
+import 'package:blog_app/repositories/user_repository.dart';
 import 'package:blog_app/widgets/common/button_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ChangePasswordPage extends StatelessWidget {
+class ChangePasswordPage extends StatefulWidget {
   static const String routeName = '/change_password_page';
   const ChangePasswordPage({super.key});
+
+  @override
+  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
+}
+
+class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -22,24 +36,42 @@ class ChangePasswordPage extends StatelessWidget {
         child: Column(
           children: [
             TextFormField(
+              obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Current Password',
               ),
             ),
             const SizedBox(height: kMediumPadding),
             TextFormField(
+              obscureText: true,
+              controller: _passwordController,
               decoration: InputDecoration(
                 labelText: 'New Password',
               ),
             ),
             const SizedBox(height: kMediumPadding),
             TextFormField(
+              obscureText: true,
+              controller: _confirmPasswordController,
               decoration: InputDecoration(
                 labelText: 'Confirm New Password',
               ),
             ),
             const SizedBox(height: kMediumPadding * 2),
-            ButtonWidget(title: 'Save Password', onPressed: () {})
+            ButtonWidget(title: 'Save Password', onPressed: () async{
+              if(_passwordController.text != _confirmPasswordController.text) {
+                return showSnackBarHelper('Password not match', Colors.red, context);
+              } else  {
+                final UserRepository _userRepository = UserRepository();
+                final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
+                final SharedPreferences _sharedPreferences = await prefs;
+                final String token = _sharedPreferences.getString('accessToken')!;
+                await _userRepository.resetPassword(_passwordController.text, token);
+                if(!mounted) return;
+                showSnackBarHelper('Password changed', Colors.green, context);
+                Get.back();
+              }
+            })
           ],
         ),
       ),

@@ -1,5 +1,4 @@
 import 'package:blog_app/models/reply_comment_model.dart';
-import 'package:blog_app/models/user_model.dart';
 
 class CommentModel {
   String? sId;

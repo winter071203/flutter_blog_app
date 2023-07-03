@@ -6,7 +6,7 @@ import 'package:blog_app/constants/dimension_constants.dart';
 import 'package:blog_app/models/auth_model.dart';
 import 'package:blog_app/pages/edit_profile_page.dart';
 import 'package:blog_app/pages/setting_page.dart';
-import 'package:blog_app/repositories/blog_user_repository,.dart';
+import 'package:blog_app/repositories/blog_repository.dart';
 import 'package:blog_app/widgets/common/item_blog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,7 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final user = widget.authModel.user!;
     return BlocProvider(
       create: (context) =>
-          BlogUserBloc(blogUserReposotory: BlogUserReposotory())
+          BlogUserBloc(blogRepository: BlogRepository())
             ..add(GetBlogsUser(id: user.sId!)),
       child: Scaffold(
           body: Stack(
@@ -90,11 +90,12 @@ class _ProfilePageState extends State<ProfilePage> {
                           )
                         ],
                       ),
-                                            SizedBox(
+                        SizedBox(
                         width: kDefaultPadding,
                       ),
                       IconButton(onPressed: () {
-                        Get.to(() => EditProfileUserPage(auth: widget.authModel));
+                        // get to Edit Profile and reload data
+                        Get.to(() => EditProfileUserPage(auth: widget.authModel,))!.then((value) => setState(() {}));
                       }, icon: Icon(FontAwesomeIcons.pen, size: 20, color: Colors.white,))
                     ],
                   ),]

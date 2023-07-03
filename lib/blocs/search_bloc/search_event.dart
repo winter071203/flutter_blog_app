@@ -1,5 +1,3 @@
-
-
 import 'package:equatable/equatable.dart';
 
 abstract class SearchEvent extends Equatable {
@@ -14,3 +12,6 @@ class SearchBlog extends SearchEvent {
   @override
   List<Object> get props => [title!];
 }
+
+class DeleteAllBlog extends SearchEvent {}
+

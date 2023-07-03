@@ -4,10 +4,15 @@ import 'package:blog_app/blocs/blog_bloc/blog_state.dart';
 import 'package:blog_app/constants/dimension_constants.dart';
 import 'package:blog_app/models/blog_model.dart';
 import 'package:blog_app/models/user_model.dart';
-import 'package:blog_app/repositories/home_repository.dart';
+import 'package:blog_app/pages/add_blog_page.dart';
+import 'package:blog_app/pages/blogs_by_category.dart';
+import 'package:blog_app/repositories/blog_repository.dart';
 import 'package:blog_app/widgets/common/item_blog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:get/route_manager.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.user});
@@ -19,14 +24,22 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-  final HomeRepository homeRepository = HomeRepository();
-    final Size size = MediaQuery.of(context).size;
+  final BlogRepository blogRepository = BlogRepository();
     return BlocProvider(
-      create: (context) => BlogBloc(homeRepository: homeRepository)..add(FetchBlog()),
+      create: (context) => BlogBloc(homeRepository: blogRepository)..add(FetchBlog()),
       child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          centerTitle: false,
+          title: Text('Winter Blog', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
+          actions: [
+            IconButton(onPressed: () {
+              Get.to(() => AddBlogPage());
+            }, icon: Icon(FontAwesomeIcons.plus))
+          ],
+        ),
           body: Column(
         children: <Widget>[
-          homeAppBar(context, size),
           BlocBuilder<BlogBloc, BlogState>(builder: (context, homeBlogState) {
             if (homeBlogState is BlogLoading) {
               return const Center(child: CircularProgressIndicator());
@@ -42,38 +55,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget homeAppBar(BuildContext context, Size size) {
-    return Container(
-      height: size.height / 10,
-      padding: EdgeInsets.only(
-          left: kDefaultPadding,
-          right: kDefaultPadding,
-          bottom: kDefaultPadding),
-      decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20))),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Winter Blog',
-            style: TextStyle(
-                fontSize: 25, fontWeight: FontWeight.bold, color: Colors.black),
-          ),
-          GestureDetector(
-            onTap: () {},
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(widget.user.avatar!),
-              radius: 20,
-            ),
-          )
-        ],
-      ),
-    );
-  }
 
 
   Widget _buildListBLogs(BuildContext context, List<BlogModel> listBlogs) {
@@ -100,13 +81,33 @@ class _HomePageState extends State<HomePage> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                listBlogCategory![index].name![0].toUpperCase() +
-                    listBlogCategory[index].name!.substring(1),
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+              SizedBox(
+                height: kDefaultPadding,
+              ),
+              Row(
+                children: [
+                  Text(
+                    listBlogCategory![index].name![0].toUpperCase() +
+                        listBlogCategory[index].name!.substring(1),
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  Spacer(),
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(() => BlogsByCategory(id: listBlogCategory[index].sId!, nameCategory: listBlogCategory[index].name!,));
+                    },
+                    child: Text(
+                      'See all',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue),
                     ),
+                  )
+                ],
               ),
               SizedBox(
                 height: kDefaultPadding,

@@ -11,6 +11,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchBlogState> {
       :_searchRepository = searchRepository,
         super(SearchBlogInitial()) {
     on<SearchEvent>(_getSearchBlogs);
+    on<DeleteAllBlog>(_deleteAllBlog);
     
   }
 
@@ -24,5 +25,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchBlogState> {
         emit(SearchBlogFailure());
       }
     }
+  }
+
+  void _deleteAllBlog(DeleteAllBlog event, Emitter<SearchBlogState> emit)  {
+    emit(SearchBlogSuccess(blogs: const[]));
   }
 }

@@ -3,11 +3,14 @@ import 'package:blog_app/constants/color_constants.dart';
 import 'package:blog_app/constants/dimension_constants.dart';
 import 'package:blog_app/models/blog_model.dart';
 import 'package:blog_app/pages/comments_page.dart';
+import 'package:blog_app/pages/other_profile_page.dart';
+import 'package:blog_app/utils/convert_date.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class DetailPostPage extends StatefulWidget {
@@ -37,7 +40,11 @@ class _DetailPostPageState extends State<DetailPostPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text('${widget.blog.user!.name},', style: TextStyle(fontSize: 18, color: Colors.red, fontWeight: FontWeight.bold),),
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(() => OtherProfile(id: widget.blog.user!.sId!), transition: Transition.rightToLeft);
+                        },
+                        child: Text('${widget.blog.user!.name},', style: TextStyle(fontSize: 18, color: Colors.red, fontWeight: FontWeight.bold),)),
                       const SizedBox(width: kMinPadding,),
                   Text(convertDate(widget.blog.createdAt!), style: TextStyle(fontSize: 16),),
                     ],
@@ -86,15 +93,16 @@ class _DetailPostPageState extends State<DetailPostPage> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: ColorPalette.primaryColor,
-        onPressed: () {
-          Get.to(() => CommentsPage(id: widget.blog.sId!), transition: Transition.rightToLeftWithFade, duration: Duration(milliseconds: 200));
+        onPressed: () async{
+                      final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+            final SharedPreferences prefs = await _prefs;
+            final String? token = prefs.getString('accessToken');
+          Get.to(() => CommentsPage(id: widget.blog.sId!, blogUserId:  widget.blog.user!.sId as String, token: token as String), transition: Transition.rightToLeft);
         },
         child: Icon(FontAwesomeIcons.comment, color: Colors.white,),
       )
     );
   }
 
-      String convertDate(String date) {
-    return '${DateTime.parse(date).hour.toString()}:${DateTime.parse(date).minute.toString()} ${DateTime.parse(date).day.toString()}/${DateTime.parse(date).month.toString()}/${DateTime.parse(date).year.toString()}';
-  }
+    
 }

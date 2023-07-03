@@ -30,16 +30,17 @@ class _SplashPageState extends State<SplashPage> {
     final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     final SharedPreferences prefs = await _prefs;
     final introValue = prefs.getString('Intro');
-    final accessToken = prefs.getString('accessToken');
+    final refreshToken = prefs.getString('refreshToken');
     final bool isDarkMode = prefs.getBool('isDarkMode') ?? false;
     if(isDarkMode) {
       Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
     }
-    if (accessToken != null) {
+    if (refreshToken != null) {
+      print(refreshToken);
       final AuthRepository _authRepository = AuthRepository();
-      print('accessToken: $accessToken');
-      final response = await _authRepository.refreshToken(accessToken);
-      if (response?.accessToken != null) {
+      final response = await _authRepository.refreshToken(refreshToken);
+      if (response?.refreshToken != null &&  response?.accessToken) {
+        prefs.setString('refreshToken', response.refreshToken as String);
         prefs.setString('accessToken', response.accessToken as String);
         Get.to(
             () => MainAppPage(
@@ -49,16 +50,16 @@ class _SplashPageState extends State<SplashPage> {
             duration: Duration(seconds: 1));
       } else {
         Get.to(() => LoginPage(),
-          transition: Transition.zoom, duration: Duration(seconds: 1));
+          transition: Transition.zoom);
       }
     } else if (introValue == 'introValue') {
       Get.to(() => LoginPage(),
-          transition: Transition.zoom, duration: Duration(seconds: 1));
+          transition: Transition.zoom);
       // Navigator.of(context).pushNamed(LoginPage.routeName);
     } else {
       prefs.setString('Intro', 'introValue');
       Get.to(() => IntroPage(),
-          transition: Transition.zoom, duration: Duration(seconds: 1));
+          transition: Transition.zoom);
     }
   }
 
