@@ -23,4 +23,3 @@ class BlogSuccess extends BlogState {
 }
 
 
-

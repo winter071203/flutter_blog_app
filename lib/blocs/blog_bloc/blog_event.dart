@@ -16,3 +16,11 @@ class FecthBlogUSer extends BlogEvent{
   @override
   List<Object> get props => [userId];
 }
+
+class CreateBlog extends BlogEvent {
+  Map<String, dynamic> data;
+  String token;
+  CreateBlog({required this.data, required this.token});
+  @override
+  List<Object> get props => [data, token];
+}

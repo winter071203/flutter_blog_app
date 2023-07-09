@@ -16,6 +16,7 @@ class ChangePasswordPage extends StatefulWidget {
 }
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
@@ -36,6 +37,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         child: Column(
           children: [
             TextFormField(
+              controller: _currentPasswordController,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Current Password',
@@ -66,9 +68,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
                 final SharedPreferences _sharedPreferences = await prefs;
                 final String token = _sharedPreferences.getString('accessToken')!;
-                await _userRepository.resetPassword(_passwordController.text, token);
+                final res = await _userRepository.resetPassword(_currentPasswordController.text,_passwordController.text, token);
                 if(!mounted) return;
-                showSnackBarHelper('Password changed', Colors.green, context);
+                if(res['statusCode'] == 500) {
+                  return showSnackBarHelper(res['msg'], Colors.red, context);
+                }
+                showSnackBarHelper(res['msg'], Colors.green, context);
                 Get.back();
               }
             })

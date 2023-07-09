@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
@@ -14,6 +15,7 @@ class AuthEventLogin extends AuthEvent {
   @override
   String toString() => 'AuthEventLogin { account: $account, password: $password }';
 }
+
 
 class AuthEventRegister extends AuthEvent {
   final String account;

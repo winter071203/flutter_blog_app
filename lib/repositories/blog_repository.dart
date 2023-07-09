@@ -39,4 +39,13 @@ class BlogRepository {
       return debugPrint('getBlogsByCategory error: $e');
     }
   }
+
+  Future<dynamic> createBlog(Map<String, dynamic> data, String token) async {
+    try {
+      final res = await _repository.postApi('blog', data, token);
+      return res;
+    } catch(e) {
+      return debugPrint('createBlog error: $e');
+    }
+  }
 }

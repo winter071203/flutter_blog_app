@@ -2,6 +2,10 @@ import 'package:blog_app/constants/color_constants.dart';
 import 'package:blog_app/constants/dimension_constants.dart';
 import 'package:blog_app/helpers/asset_helper.dart';
 import 'package:blog_app/helpers/image_helper.dart';
+import 'package:blog_app/helpers/show_snack_bar_helper.dart';
+import 'package:blog_app/pages/login_page.dart';
+import 'package:blog_app/repositories/auth_repository.dart';
+import 'package:blog_app/repositories/user_repository.dart';
 import 'package:blog_app/widgets/common/button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -15,11 +19,33 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _accountController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isShowPassword = false;
   bool _isShowConfirmPassword = false;
+
+
+  void _registerUser(BuildContext context) async {
+    if(_passwordController.text != _confirmPasswordController.text) {
+      Get.snackbar('Error', 'Password and confirm password not match', colorText: Colors.white, backgroundColor: Colors.red, snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+    Map<String, String> data = {
+      'name': _nameController.text,
+      'account': _accountController.text,
+      'password': _passwordController.text,
+      'confirmPassword': _confirmPasswordController.text,
+    };
+    final AuthRepository _authRepository = AuthRepository();
+    var res = await _authRepository.register(data);
+    if(res['statusCode'] != 200) {
+      Get.snackbar('Error', res['msg'], colorText: Colors.white, backgroundColor: Colors.red, snackPosition: SnackPosition.BOTTOM);
+    } else {
+      Get.snackbar('Success', res['msg'], colorText: Colors.white, backgroundColor: Colors.green, snackPosition: SnackPosition.BOTTOM);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +105,26 @@ class _RegisterPageState extends State<RegisterPage> {
                 Form(
                     child: Column(
                   children: [
+                      TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        fillColor: ColorPalette.primaryColor.withOpacity(.2),
+                        filled: true,
+                        hintText: 'Name',
+                        hintStyle: TextStyle(
+                            color: ColorPalette.text1Color.withOpacity(.5)),
+                        prefixIcon: Icon(
+                          FontAwesomeIcons.solidCircleUser,
+                          color: ColorPalette.primaryColor,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(kDefaultPadding),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: kDefaultPadding,
+                    ),
                     TextFormField(
                       controller: _accountController,
                       decoration: InputDecoration(
@@ -173,7 +219,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(
                   height: kDefaultPadding * 2,
                 ),
-                ButtonWidget(title: 'Register', onPressed: () {}),
+                ButtonWidget(title: 'Register', onPressed: () {
+                  _registerUser(context);
+                }),
               ],
             ),
           ),

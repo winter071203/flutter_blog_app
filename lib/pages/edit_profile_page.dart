@@ -55,20 +55,22 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
 
   Future<dynamic> saveEditProfile(BuildContext context) async {
     final UserRepository userRepository = UserRepository();
+    String msg;
     if (image == null) {
-      await userRepository.updateUser(
+      msg = await userRepository.updateUser(
         _nameController.text,
         widget.auth.user!.avatar!,
         widget.auth.accessToken!,
       );
     } else {
       String photoUrl = await imageUpload(image);
-      await userRepository.updateUser(
+      msg = await userRepository.updateUser(
         _nameController.text,
         photoUrl,
         widget.auth.accessToken!,
       );
     }
+    Get.snackbar('Success', msg, backgroundColor: Colors.green, colorText: Colors.white);
     Get.back();
   }
 

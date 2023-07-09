@@ -52,6 +52,7 @@ class _SettingPageState extends State<SettingPage> {
                 await _authRepository.logout(token);
                 prefs.remove('refreshToken');
                 prefs.remove('accessToken');
+                Get.snackbar('Success', 'Logout success', colorText: Colors.white, backgroundColor: Colors.green, snackPosition: SnackPosition.BOTTOM);
                 Get.offAllNamed('/');
                 } catch (e) {
                   Navigator.of(context).pop();

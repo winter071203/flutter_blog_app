@@ -39,7 +39,7 @@ class _SplashPageState extends State<SplashPage> {
       print(refreshToken);
       final AuthRepository _authRepository = AuthRepository();
       final response = await _authRepository.refreshToken(refreshToken);
-      if (response?.refreshToken != null &&  response?.accessToken) {
+      if (response?.refreshToken != null &&  response?.accessToken != null) {
         prefs.setString('refreshToken', response.refreshToken as String);
         prefs.setString('accessToken', response.accessToken as String);
         Get.to(

@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
           title: Text('Winter Blog', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
           actions: [
             IconButton(onPressed: () {
-              Get.to(() => AddBlogPage());
+              // Get.to(() => AddBlogPageStep1());
             }, icon: Icon(FontAwesomeIcons.plus))
           ],
         ),

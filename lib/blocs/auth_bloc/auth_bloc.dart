@@ -15,7 +15,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (event is AuthEventLogout) {
         prefs.remove('accessToken');
         prefs.remove('refreshToken');
-        emit(AuthFailure());
       } else if (event is AuthEventLogin) {
         emit(AuthLoading());
         try {
@@ -27,7 +26,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         } catch (e) {
           prefs.remove('accessToken');
           prefs.remove('refreshToken');
-          emit(AuthFailure());
         }
       }
     });

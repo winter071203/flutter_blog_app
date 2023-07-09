@@ -63,6 +63,7 @@ class _MainAppPageState extends State<MainAppPage> {
           KeepAlivePage(child: HomePage(user: widget.authModel.user as UserModel)),
           SearchPage(),
           KeepAlivePage(child: CategoryPage()),
+            KeepAlivePage(child: AddBlogPage()),
           KeepAlivePage(
             child: ProfilePage(
               authModel: widget.authModel,
@@ -72,6 +73,7 @@ class _MainAppPageState extends State<MainAppPage> {
         :[
           KeepAlivePage(child: HomePage(user: widget.authModel.user as UserModel)),
           SearchPage(),
+          KeepAlivePage(child: AddBlogPage()),
           KeepAlivePage(
             child: ProfilePage(
               authModel: widget.authModel,
@@ -80,7 +82,7 @@ class _MainAppPageState extends State<MainAppPage> {
         ],
       ),
       bottomNavigationBar: SalomonBottomBar(
-        
+        backgroundColor: ColorPalette.primaryColor.withOpacity(.5),
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -88,8 +90,9 @@ class _MainAppPageState extends State<MainAppPage> {
           });
           _pageController.jumpToPage(index);
         },
-        selectedItemColor: ColorPalette.primaryColor,
-        unselectedItemColor: ColorPalette.primaryColor.withOpacity(0.5),
+        selectedItemColor: Colors.white,
+        selectedColorOpacity: .5,
+        unselectedItemColor: ColorPalette.primaryColor,
         margin: EdgeInsets.symmetric(
             horizontal: kMediumPadding, vertical: kDefaultPadding),
         items: widget.authModel.user?.role == 'admin' ?  [
@@ -98,21 +101,28 @@ class _MainAppPageState extends State<MainAppPage> {
               FontAwesomeIcons.house,
               size: kDefaultPadding,
             ),
-            title: Text('Home'),
+            title: Text('Home', style: TextStyle(color: ColorPalette.primaryColor),),
           ),
           SalomonBottomBarItem(
             icon: Icon(
               FontAwesomeIcons.searchengin,
               size: kDefaultPadding,
             ),
-            title: Text('Search'),
+            title: Text('Search', style: TextStyle(color: ColorPalette.primaryColor),),
+          ),
+            SalomonBottomBarItem(
+            icon: Icon(
+              FontAwesomeIcons.plus,
+              size: kDefaultPadding,
+            ),
+            title: Text('Add Blog', style: TextStyle(color: ColorPalette.primaryColor),),
           ),
           SalomonBottomBarItem(
             icon: Icon(
               FontAwesomeIcons.bars,
               size: kDefaultPadding,
             ),
-            title: Text('Category'),
+            title: Text('Category', style: TextStyle(color: ColorPalette.primaryColor),),
           ),
           SalomonBottomBarItem(
             icon: Icon(
@@ -137,6 +147,13 @@ class _MainAppPageState extends State<MainAppPage> {
               size: kDefaultPadding,
             ),
             title: Text('Search'),
+          ),
+                      SalomonBottomBarItem(
+            icon: Icon(
+              FontAwesomeIcons.plus,
+              size: kDefaultPadding,
+            ),
+            title: Text('Add Blog'),
           ),
           SalomonBottomBarItem(
             icon: Icon(

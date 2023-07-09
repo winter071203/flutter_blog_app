@@ -11,7 +11,15 @@ abstract class AuthState extends Equatable {
 }
 class AuthInitial extends AuthState {}
 class AuthLoading extends AuthState {}
-class AuthFailure extends AuthState {}
+class AuthFailure extends AuthState {
+  final String msg;
+  const AuthFailure({required this.msg});
+  @override
+  List<Object?> get props => [msg];
+  @override
+  String toString() => 'AuthFailure { msg: $msg }';
+
+}
 class AuthSuccess extends AuthState {
   final AuthModel authModel;
   const AuthSuccess({required this.authModel});
@@ -19,4 +27,13 @@ class AuthSuccess extends AuthState {
   List<Object?> get props => [authModel];
   @override
   String toString() => 'AuthSuccess { authModel: $authModel }';
+}
+
+class AuthLogout extends AuthState {
+  final String msg;
+  const AuthLogout({required this.msg});
+  @override
+  List<Object?> get props => [msg];
+  @override
+  String toString() => 'AuthLogout { msg: $msg }';
 }

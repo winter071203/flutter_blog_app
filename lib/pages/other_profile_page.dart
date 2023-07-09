@@ -135,7 +135,7 @@ class _OtherProfileState extends State<OtherProfile> {
                               Expanded(
                                 child: ListView.builder(
                                   controller: scrollController,
-                                  itemCount: userProfileState.listBlogs!.total.toInt(),
+                                  itemCount: userProfileState.listBlogs!.blogs.length,
                                   itemBuilder: (context, index) {
                                     return ItemBlog(
                                       blog: userProfileState.listBlogs!.blogs[index],
