@@ -4,6 +4,8 @@ import 'package:blog_app/blocs/blog_user_bloc/blog_user_state.dart';
 import 'package:blog_app/constants/color_constants.dart';
 import 'package:blog_app/constants/dimension_constants.dart';
 import 'package:blog_app/models/auth_model.dart';
+import 'package:blog_app/models/blog_model.dart';
+import 'package:blog_app/models/user_model.dart';
 import 'package:blog_app/pages/edit_profile_page.dart';
 import 'package:blog_app/pages/setting_page.dart';
 import 'package:blog_app/repositories/blog_repository.dart';
@@ -22,13 +24,24 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  late UserModel user;
+
+
+  void updateUser(Map<String, String> data) {
+    setState(() {
+      user.name = data['name'];
+      user.avatar = data['avatar'];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    final user = widget.authModel.user!;
+    final BlogRepository blogUserBloc = BlogRepository();
+    user = widget.authModel.user!;
     return BlocProvider(
       create: (context) =>
-          BlogUserBloc(blogRepository: BlogRepository())
+          BlogUserBloc(blogRepository: blogUserBloc)
             ..add(GetBlogsUser(id: user.sId!)),
       child: Scaffold(
           body: Stack(
@@ -95,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       IconButton(onPressed: () {
                         // get to Edit Profile and reload data
-                        Get.to(() => EditProfileUserPage(auth: widget.authModel,))!.then((value) => setState(() {}));
+                        Get.to(() => EditProfileUserPage(user: user, accessToken: widget.authModel.accessToken!, updateUser: updateUser,));
                       }, icon: Icon(FontAwesomeIcons.pen, size: 20, color: Colors.white,))
                     ],
                   ),]
@@ -138,15 +151,19 @@ class _ProfilePageState extends State<ProfilePage> {
                                 child: CircularProgressIndicator(),
                               );
                             } else if (blogUserState is BlogUserSuccess) {
-                              print(blogUserState.blogsUser.blogs!.length);
+                              final blogs = blogUserState.blogsUser.blogs.map((blog) => 
+                              BlogModel.fromJson({
+                                ...blog.toJson(),
+                                'user': user.toJson()
+                              })
+                              ).toList();
                               return Expanded(
                                 child: ListView.builder(
                                   controller: scrollController,
-                                  itemCount:
-                                      blogUserState.blogsUser.blogs!.length,
+                                  itemCount: blogs.length,
                                   itemBuilder: (context, index) {
                                     return ItemBlog(
-                                      blog: blogUserState.blogsUser.blogs![index],
+                                      blog: blogs[index],
                                     );
                                   },
                                 ),

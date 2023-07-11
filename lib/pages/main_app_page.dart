@@ -53,6 +53,7 @@ class _MainAppPageState extends State<MainAppPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: PageView(
+        physics: const NeverScrollableScrollPhysics(),
         onPageChanged: (index) {
           setState(() {
             _currentIndex = index;

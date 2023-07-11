@@ -30,13 +30,8 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          centerTitle: false,
+          centerTitle: true,
           title: Text('Winter Blog', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
-          actions: [
-            IconButton(onPressed: () {
-              // Get.to(() => AddBlogPageStep1());
-            }, icon: Icon(FontAwesomeIcons.plus))
-          ],
         ),
           body: Column(
         children: <Widget>[

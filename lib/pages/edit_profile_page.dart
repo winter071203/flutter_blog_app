@@ -1,21 +1,26 @@
 import 'dart:io';
+import 'package:blog_app/blocs/blog_user_bloc/blog_user_bloc.dart';
+import 'package:blog_app/blocs/blog_user_bloc/blog_user_event.dart';
 import 'package:blog_app/constants/color_constants.dart';
 import 'package:blog_app/constants/dimension_constants.dart';
 import 'package:blog_app/helpers/image_helper.dart';
-import 'package:blog_app/models/auth_model.dart';
+import 'package:blog_app/models/user_model.dart';
 import 'package:blog_app/repositories/user_repository.dart';
 import 'package:blog_app/utils/image_upload.dart';
 import 'package:blog_app/widgets/common/button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/route_manager.dart';
 import 'package:image_picker/image_picker.dart';
 
 class EditProfileUserPage extends StatefulWidget {
   static const String routeName = '/edit_profile_user_page';
-  final AuthModel auth;
-  const EditProfileUserPage({super.key, required this.auth});
+  final UserModel user;
+  final String accessToken;
+  final Function(Map<String, String>) updateUser;
+  const EditProfileUserPage({super.key, required this.user, required this.accessToken, required this.updateUser});
 
   @override
   State<EditProfileUserPage> createState() => _EditProfileUserPageState();
@@ -29,8 +34,8 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.auth.user!.name!;
-    _accountController.text = widget.auth.user!.account!;
+    _nameController.text = widget.user.name!;
+    _accountController.text = widget.user.account!;
   }
 
   @override
@@ -52,24 +57,62 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
       print('pickImage error: $e');
     }
   }
+  
 
   Future<dynamic> saveEditProfile(BuildContext context) async {
+      showDialog(
+        // The user CANNOT close this dialog  by pressing outsite it
+        barrierDismissible: false,
+        context: context,
+        builder: (_) {
+          return Dialog(
+            // The background color
+            backgroundColor: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  // The loading indicator
+                  CircularProgressIndicator(),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  // Some text
+                  Text('Loading...')
+                ],
+              ),
+            ),
+          );
+        });
     final UserRepository userRepository = UserRepository();
     String msg;
     if (image == null) {
       msg = await userRepository.updateUser(
         _nameController.text,
-        widget.auth.user!.avatar!,
-        widget.auth.accessToken!,
+        widget.user.avatar!,
+        widget.accessToken,
       );
+      widget.updateUser({
+        'name': _nameController.text,
+        'avatar': widget.user.avatar!,
+      });
     } else {
       String photoUrl = await imageUpload(image);
       msg = await userRepository.updateUser(
         _nameController.text,
         photoUrl,
-        widget.auth.accessToken!,
+        widget.accessToken,
       );
+      widget.updateUser({
+        'name': _nameController.text,
+        'avatar': photoUrl,
+      });
     }
+    if(!mounted) return;
+    Future.delayed(Duration(seconds: 1), () {
+      Navigator.pop(context);
+    });
     Get.snackbar('Success', msg, backgroundColor: Colors.green, colorText: Colors.white);
     Get.back();
   }
@@ -153,7 +196,7 @@ class _EditProfileUserPageState extends State<EditProfileUserPage> {
                       ? ImageHelper.loadImageFile(image!,
                           borderRadius: BorderRadius.circular(500),
                           fit: BoxFit.cover)
-                      : ImageHelper.loadImageNetWork(widget.auth.user!.avatar!,
+                      : ImageHelper.loadImageNetWork(widget.user.avatar!,
                           borderRadius: BorderRadius.circular(500),
                           fit: BoxFit.cover),
                 ),

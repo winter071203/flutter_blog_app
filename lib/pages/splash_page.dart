@@ -33,6 +33,7 @@ class _SplashPageState extends State<SplashPage> {
     final refreshToken = prefs.getString('refreshToken');
     final bool isDarkMode = prefs.getBool('isDarkMode') ?? false;
     if(isDarkMode) {
+      if(!mounted) return;
       Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
     }
     if (refreshToken != null) {

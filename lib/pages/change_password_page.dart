@@ -16,11 +16,19 @@ class ChangePasswordPage extends StatefulWidget {
 }
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
-  final TextEditingController _currentPasswordController = TextEditingController();
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
+  @override
+  void dispose() {
+    _currentPasswordController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,23 +68,75 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               ),
             ),
             const SizedBox(height: kMediumPadding * 2),
-            ButtonWidget(title: 'Save Password', onPressed: () async{
-              if(_passwordController.text != _confirmPasswordController.text) {
-                return showSnackBarHelper('Password not match', Colors.red, context);
-              } else  {
-                final UserRepository _userRepository = UserRepository();
-                final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
-                final SharedPreferences _sharedPreferences = await prefs;
-                final String token = _sharedPreferences.getString('accessToken')!;
-                final res = await _userRepository.resetPassword(_currentPasswordController.text,_passwordController.text, token);
-                if(!mounted) return;
-                if(res['statusCode'] == 500) {
-                  return showSnackBarHelper(res['msg'], Colors.red, context);
-                }
-                showSnackBarHelper(res['msg'], Colors.green, context);
-                Get.back();
-              }
-            })
+            ButtonWidget(
+                title: 'Save Password',
+                onPressed: () async {
+                  showDialog(
+                      // The user CANNOT close this dialog  by pressing outsite it
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (_) {
+                        return Dialog(
+                          // The background color
+                          backgroundColor: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                // The loading indicator
+                                CircularProgressIndicator(),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                // Some text
+                                Text('Loading...')
+                              ],
+                            ),
+                          ),
+                        );
+                      });
+                  if (_passwordController.text !=
+                      _confirmPasswordController.text) {
+                    Future.delayed(Duration(seconds: 1), () {
+                      Navigator.of(context).pop();
+                    });
+                    Get.snackbar('Error', 'Password not match',
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                        snackPosition: SnackPosition.BOTTOM);
+                  } else {
+                    final UserRepository _userRepository = UserRepository();
+                    final Future<SharedPreferences> prefs =
+                        SharedPreferences.getInstance();
+                    final SharedPreferences _sharedPreferences = await prefs;
+                    final String token =
+                        _sharedPreferences.getString('accessToken')!;
+                    final res = await _userRepository.resetPassword(
+                        _currentPasswordController.text,
+                        _passwordController.text,
+                        token);
+                    if (res['statusCode'] == 500) {
+                      Future.delayed(Duration(seconds: 1), () {
+                        Navigator.of(context).pop();
+                      });
+                      return Get.snackbar('Error', res['msg'],
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                          snackPosition: SnackPosition.BOTTOM);
+                    }
+                    Future.delayed(Duration(seconds: 1), () {
+                      Navigator.of(context).pop();
+                    });
+                    Get.snackbar('Success', res['msg'],
+                        backgroundColor: Colors.green,
+                        colorText: Colors.white,
+                        snackPosition: SnackPosition.BOTTOM);
+                    _currentPasswordController.text = '';
+                    _passwordController.text = '';
+                    _confirmPasswordController.text = '';
+                  }
+                })
           ],
         ),
       ),

@@ -28,7 +28,6 @@ class AddBlogPage extends StatefulWidget {
 }
 
 class _AddBlogPageState extends State<AddBlogPage> {
-  bool _isLoading = false;
   String? _categoryModel;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -36,6 +35,16 @@ class _AddBlogPageState extends State<AddBlogPage> {
   quill.QuillController _controller = quill.QuillController.basic();
   int _categoryId = 0;
   File? image;
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+
   Future pickImage(ImageSource soure) async {
     var image = await ImagePicker().pickImage(source: soure);
     if (image == null) return;
@@ -45,11 +54,36 @@ class _AddBlogPageState extends State<AddBlogPage> {
   }
 
   void createBlog() async {
-    setState(() {
-      _isLoading = true;
-    });
+    showDialog(
+        // The user CANNOT close this dialog  by pressing outsite it
+        barrierDismissible: false,
+        context: context,
+        builder: (_) {
+          return Dialog(
+            // The background color
+            backgroundColor: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  // The loading indicator
+                  CircularProgressIndicator(),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  // Some text
+                  Text('Loading...')
+                ],
+              ),
+            ),
+          );
+        });
     if(image == null) {
       Get.snackbar('Error', 'Please choose image', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      Future.delayed(Duration(seconds: 1), () {
+        Navigator.pop(context);
+      });
       return;
     }
     final imageLink = await imageUpload(image!);
@@ -64,11 +98,22 @@ class _AddBlogPageState extends State<AddBlogPage> {
     final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     final SharedPreferences prefs = await _prefs;
     final token = prefs.getString('accessToken');
-    await _blogRepository.createBlog(data, token!);
-    setState(() {
-      _isLoading = false;
+    final errCode = await _blogRepository.createBlog(data, token!);
+    if(errCode == 1) {
+      setState(() {
+        _categoryId = 0;
+        image = null;
+      });
+      _titleController.clear();
+      _descriptionController.clear();
+      _controller = quill.QuillController.basic();
+      Get.snackbar('Success', 'Create blog success', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
+    } else {
+      Get.snackbar('Error', 'Create blog failed', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+    }
+    Future.delayed(Duration(seconds: 1), () {
+      Navigator.pop(context);
     });
-    Get.snackbar('Success', 'Create blog success', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
   }
 
   void _showDialog(BuildContext context) {
@@ -131,15 +176,12 @@ class _AddBlogPageState extends State<AddBlogPage> {
             title: Text('Add Blog'),
             automaticallyImplyLeading: false,
             actions: [
-              // !_isLoading ? 
               IconButton(
                 onPressed: () {
                   createBlog();
                 },
                 icon: Icon(Icons.check),
               ) 
-              // :
-              // CircularProgressIndicator()
             ],
           ),
           body: Container(
