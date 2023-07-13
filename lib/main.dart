@@ -2,8 +2,10 @@ import 'package:blog_app/constants/color_constants.dart';
 import 'package:blog_app/pages/splash_page.dart';
 import 'package:blog_app/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 void main() {
   runApp(
@@ -11,11 +13,32 @@ void main() {
   );
 }
 
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
 
-class MyApp extends StatelessWidget {
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    connectAndListen();
+  }
+
+  void connectAndListen() {
+    print('call func connectAndListen');
+    IO.Socket socket = IO.io('http://192.168.110.101:5000',
+        IO.OptionBuilder().setTransports(['websocket']).build());
+    socket.onConnect((_) {
+      print('connect');
+      socket.emit('msg', 'test');
+    });
+    socket.onDisconnect((_) => print('disconnect'));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
+    return MultiBlocProvider(
       providers: [
         ChangeNotifierProvider(
           create: (ctx) => ThemeProvider(),
@@ -32,7 +55,8 @@ class MyApp extends StatelessWidget {
             primaryColor: Colors.deepPurple,
             brightness: Brightness.light,
             backgroundColor: Colors.grey[100],
-            iconTheme: IconThemeData(color: ColorPalette.primaryColor.withOpacity(.5)),
+            iconTheme:
+                IconThemeData(color: ColorPalette.primaryColor.withOpacity(.5)),
             textTheme: TextTheme(
               bodyText1: TextStyle(color: ColorPalette.primaryColor),
               bodyText2: TextStyle(color: ColorPalette.primaryColor),
@@ -47,7 +71,7 @@ class MyApp extends StatelessWidget {
             backgroundColor: Colors.grey[900],
             fontFamily: 'Karla',
             iconTheme: IconThemeData(color: Colors.white.withOpacity(.5)),
-            textTheme:  TextTheme(
+            textTheme: TextTheme(
               bodyText1: TextStyle(color: Colors.white),
               bodyText2: TextStyle(color: Colors.white),
             ),
